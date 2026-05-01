@@ -9,13 +9,18 @@ async function request(path, payload) {
     body: JSON.stringify(payload)
   });
 
-  const data = await response.json();
+  let data;
+  try {
+    data = await response.json();
+  } catch {
+    data = { error: 'The server returned an unreadable response.' };
+  }
 
   if (!response.ok) {
     throw new Error(data.error || 'Something went wrong');
   }
 
-  return data;
+  return data.data ?? data;
 }
 
 export const api = {

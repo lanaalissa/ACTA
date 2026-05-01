@@ -38,6 +38,19 @@ export function validateProjectData(projectData) {
     error.statusCode = 400;
     throw error;
   }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(projectData.clientEmail).trim())) {
+    const error = new Error('Client email must be a valid email address.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const numericPrice = Number(projectData.price);
+  if (!Number.isFinite(numericPrice) || numericPrice <= 0) {
+    const error = new Error('Price must be a number greater than 0.');
+    error.statusCode = 400;
+    throw error;
+  }
 }
 
 export function buildDocumentBundle(projectData, isPaid = false) {
@@ -55,6 +68,7 @@ export function buildDocumentBundle(projectData, isPaid = false) {
     milestonePlan: parseMilestones(projectData.milestones),
     contractPreview: contractBody(projectData),
     invoicePreview: invoiceBody(projectData),
+    receiptPreview: isPaid ? receiptBody(projectData) : '',
     receiptAvailable: Boolean(isPaid)
   };
 }
@@ -64,7 +78,7 @@ export function buildContractDocument(projectData) {
   return {
     type: 'contract',
     fileName: `${slugify(projectData.projectTitle)}-contract.html`,
-    html: wrapHtmlDocument({ title, body: contractBody(projectData) })
+    html: wrapHtmlDocument({ title, body: contractBody(projectData), documentType: 'Contract Draft' })
   };
 }
 
@@ -73,7 +87,7 @@ export function buildInvoiceDocument(projectData) {
   return {
     type: 'invoice',
     fileName: `${slugify(projectData.projectTitle)}-invoice.html`,
-    html: wrapHtmlDocument({ title, body: invoiceBody(projectData) })
+    html: wrapHtmlDocument({ title, body: invoiceBody(projectData), documentType: 'Invoice' })
   };
 }
 
@@ -82,7 +96,7 @@ export function buildReceiptDocument(projectData) {
   return {
     type: 'receipt',
     fileName: `${slugify(projectData.projectTitle)}-receipt.html`,
-    html: wrapHtmlDocument({ title, body: receiptBody(projectData) })
+    html: wrapHtmlDocument({ title, body: receiptBody(projectData), documentType: 'Receipt' })
   };
 }
 
@@ -98,6 +112,7 @@ export async function saveDocumentRecord(type, projectData, document) {
   };
 
   existingRecords.push(nextRecord);
+  await fs.mkdir(path.dirname(savedDocumentsPath), { recursive: true });
   await fs.writeFile(savedDocumentsPath, JSON.stringify(existingRecords, null, 2));
   return nextRecord;
 }

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Send, Sparkles } from 'lucide-react';
+import { ArrowLeft, Send, Sparkles } from 'lucide-react';
 import ProgressBar from './ProgressBar.jsx';
 import { demoData } from '../data/demoData.js';
 
@@ -25,6 +25,7 @@ export default function ChatBot({ onComplete }) {
   const [error, setError] = useState('');
 
   const currentQuestion = questions[step];
+  const isLastStep = step + 1 === questions.length;
   const messages = useMemo(() => questions.slice(0, step).map((question) => ({
     question: question.prompt,
     answer: answers[question.key]
@@ -71,9 +72,17 @@ export default function ChatBot({ onComplete }) {
     onComplete(demoData);
   }
 
+  function goBack() {
+    if (step === 0) return;
+    const previousQuestion = questions[step - 1];
+    setValue(answers[previousQuestion.key] || '');
+    setStep((currentStep) => currentStep - 1);
+    setError('');
+  }
+
   return (
     <section className="mx-auto grid min-h-screen max-w-6xl gap-6 px-4 py-6 lg:grid-cols-[0.85fr_1.15fr]">
-      <aside className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <aside className="self-start rounded-lg border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-6">
         <h1 className="text-3xl font-black text-ink">A.C.A.T Intake</h1>
         <p className="mt-3 text-slate-600">Answer each prompt to create a clean agreement draft, milestone plan, and invoice.</p>
         <div className="mt-6">
@@ -81,14 +90,21 @@ export default function ChatBot({ onComplete }) {
         </div>
         <button
           onClick={useDemoData}
-          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md border border-slate-300 px-4 py-3 font-bold text-ink transition hover:border-mint hover:text-navy"
+          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md border border-slate-300 px-4 py-3 font-bold text-ink transition hover:border-mint hover:bg-mint/10 hover:text-navy"
         >
           <Sparkles size={18} />
           Use Demo Data
         </button>
+        <p className="mt-4 rounded-md bg-slate-50 p-3 text-sm leading-6 text-slate-600">
+          Tip: enter milestones as "Milestone: date" and separate items with a vertical bar.
+        </p>
       </aside>
 
-      <div className="flex min-h-[620px] flex-col rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="flex min-h-[620px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+        <div className="border-b border-slate-200 bg-slate-50 px-5 py-4">
+          <p className="text-sm font-bold text-slate-500">Question {step + 1} of {questions.length}</p>
+          <h2 className="mt-1 text-xl font-black text-ink">{currentQuestion.label}</h2>
+        </div>
         <div className="flex-1 space-y-4 overflow-y-auto p-5">
           <div className="max-w-[85%] rounded-lg bg-slate-100 p-4 text-slate-800">
             Hi. I will collect the details step by step and keep contract, invoice, and receipt language separate.
@@ -112,7 +128,8 @@ export default function ChatBot({ onComplete }) {
                 id={currentQuestion.key}
                 value={value}
                 onChange={(event) => setValue(event.target.value)}
-                className="min-h-24 flex-1 rounded-md border border-slate-300 px-3 py-3 outline-none focus:border-mint focus:ring-4 focus:ring-mint/20"
+                placeholder={currentQuestion.prompt}
+                className="min-h-24 flex-1 resize-y rounded-md border border-slate-300 px-3 py-3 outline-none focus:border-mint focus:ring-4 focus:ring-mint/20"
               />
             ) : (
               <input
@@ -120,14 +137,26 @@ export default function ChatBot({ onComplete }) {
                 type={currentQuestion.type || 'text'}
                 value={value}
                 onChange={(event) => setValue(event.target.value)}
+                placeholder={currentQuestion.prompt}
                 className="min-h-12 flex-1 rounded-md border border-slate-300 px-3 py-3 outline-none focus:border-mint focus:ring-4 focus:ring-mint/20"
               />
             )}
-            <button className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-coral text-white transition hover:bg-[#dc5d48]" title="Send answer">
+            <button className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-coral text-white transition hover:bg-[#dc5d48]" title={isLastStep ? 'Generate documents' : 'Send answer'}>
               <Send size={20} />
             </button>
           </div>
-          {error && <p className="mt-2 text-sm font-semibold text-red-600">{error}</p>}
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={goBack}
+              disabled={step === 0}
+              className="inline-flex items-center gap-2 rounded-md border border-slate-300 px-3 py-2 text-sm font-bold text-slate-700 transition hover:border-navy hover:text-navy disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ArrowLeft size={16} />
+              Back
+            </button>
+            {error && <p className="text-sm font-semibold text-red-600">{error}</p>}
+          </div>
         </form>
       </div>
     </section>

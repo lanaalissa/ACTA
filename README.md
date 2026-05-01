@@ -1,21 +1,16 @@
 # A.C.A.T - Automatic Contract AI Tool
 
-A.C.A.T is a hackathon-ready MVP for freelancers and small businesses. It uses a guided chat flow to collect project details, then generates a contract draft, milestone plan, invoice, and a receipt only after the payment is marked as paid.
+A.C.A.T is a lightweight hackathon MVP for freelancers and small businesses. It collects project details through a guided intake flow, then generates a contract draft, milestone plan, invoice, and receipt after payment is marked as paid.
 
-Contract means agreement. Invoice means payment request. Receipt means proof of payment after payment.
+## What Works
 
-## Features
-
-- Guided Q&A chatbot for project details
-- Progress indicator while collecting answers
-- Required-field validation
-- Professional preview with agreement summary, milestones, contract draft, and invoice
-- Generate contract, invoice, and receipt through backend APIs
-- Receipt generation is disabled until payment is marked as paid
-- Download generated documents as printable HTML files
-- Demo data for fast testing
-- Local JSON/in-memory storage only
-- No authentication and no real payment integration
+- Guided Q&A intake with validation and demo data
+- Editable project details after generation
+- Backend-generated contract, invoice, and receipt documents
+- Printable HTML exports with a built-in "Print or Save as PDF" button
+- Receipt locked until payment is marked as paid
+- Loading, success, error, and disabled states
+- Local JSON record of generated documents
 
 ## Tech Stack
 
@@ -24,94 +19,82 @@ Contract means agreement. Invoice means payment request. Receipt means proof of 
 - Node.js + Express
 - Local JSON file storage
 
-## Folder Structure
+## Environment
 
-```text
-ACAT/
-├── README.md
-├── .gitignore
-├── package.json
-├── frontend/
-│   ├── package.json
-│   ├── index.html
-│   ├── vite.config.js
-│   ├── tailwind.config.js
-│   ├── postcss.config.js
-│   └── src/
-│       ├── main.jsx
-│       ├── App.jsx
-│       ├── index.css
-│       ├── components/
-│       │   ├── Landing.jsx
-│       │   ├── ChatBot.jsx
-│       │   ├── ProgressBar.jsx
-│       │   ├── DocumentPreview.jsx
-│       │   └── ActionButtons.jsx
-│       ├── utils/
-│       │   └── api.js
-│       └── data/
-│           └── demoData.js
-└── backend/
-    ├── package.json
-    ├── server.js
-    ├── routes/
-    │   └── documents.js
-    ├── controllers/
-    │   └── documentController.js
-    ├── services/
-    │   ├── documentGenerator.js
-    │   └── pdfService.js
-    ├── templates/
-    │   ├── contractTemplate.js
-    │   ├── invoiceTemplate.js
-    │   └── receiptTemplate.js
-    └── data/
-        └── savedDocuments.json
-```
+No environment variables are required for the default local demo. Optional values are documented in `.env.example`:
 
-## Installation
+- `PORT`: backend port, default `5000`
+- `CLIENT_URL`: frontend URL allowed by backend CORS, default `http://localhost:5173`
+- `VITE_API_URL`: frontend API base URL, default `http://localhost:5000/api`
+
+## Install
 
 From the repository root:
 
 ```bash
-cd ACAT
 npm install
+```
+
+The root `postinstall` script installs backend and frontend dependencies too. If you want to run those manually:
+
+```bash
 npm run install:all
 ```
 
 ## Run Locally
 
-Start both frontend and backend:
-
 ```bash
 npm run dev
 ```
 
-Or start each app in separate terminals:
+- Frontend: `http://localhost:5173`
+- Backend: `http://localhost:5000`
+
+You can also run each app separately:
 
 ```bash
 npm run dev:backend
 npm run dev:frontend
 ```
 
-- Frontend: http://localhost:5173
-- Backend: http://localhost:5000
-
 ## Demo Flow
 
 1. Open the frontend.
-2. Click **Start Demo**.
-3. Answer each chat question, or click **Use Demo Data**.
-4. Review the agreement summary, milestone plan, contract draft, and invoice.
-5. Click **Generate Contract** and **Generate Invoice** to download HTML documents.
-6. Click **Mark as Paid**.
-7. Click **Generate Receipt** to download proof of payment.
+2. Click `Start Demo`.
+3. Answer each intake question or click `Use Demo Data`.
+4. Review the agreement summary, milestones, contract, and invoice.
+5. Edit details if needed and save to regenerate.
+6. Download the contract and invoice.
+7. Click `Mark as Paid`.
+8. Download the receipt, then open any exported HTML file to print or save as PDF.
 
-## Future Improvements
+## API
 
-- Add real AI-assisted clause suggestions
-- Export true PDF files using a server-side PDF renderer
-- Add secure authentication and client portals
-- Add payment-provider integrations
-- Add reusable contract templates by industry
-- Add e-signature workflow
+- `POST /api/documents/generate`
+- `POST /api/documents/contract`
+- `POST /api/documents/invoice`
+- `POST /api/documents/receipt`
+
+All document endpoints expect:
+
+```json
+{
+  "projectData": {
+    "freelancerName": "Maya Studio LLC",
+    "clientName": "BrightPath Learning",
+    "clientEmail": "hello@brightpath.example",
+    "projectTitle": "Course Landing Page Redesign",
+    "scope": "Design and build a responsive landing page.",
+    "deliverables": "Discovery brief, design, Vite page, launch checklist",
+    "price": "2400",
+    "currency": "USD",
+    "deadline": "2026-06-15",
+    "paymentTerms": "50% upfront and 50% upon final delivery",
+    "milestones": "Discovery: 2026-05-10 | Design: 2026-05-24",
+    "notes": "Includes two revision rounds."
+  },
+  "isPaid": false
+}
+```
+
+Receipt generation requires `"isPaid": true`.

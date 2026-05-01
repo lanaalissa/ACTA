@@ -25,5 +25,5 @@ export default function App() {
     return <ChatBot onComplete={handleComplete} />;
   }
 
-  return <DocumentPreview projectData={projectData} onReset={resetDemo} />;
+  return <DocumentPreview projectData={projectData} onUpdate={setProjectData} onReset={resetDemo} />;
 }
