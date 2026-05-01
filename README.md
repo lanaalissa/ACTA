@@ -1,6 +1,10 @@
 # A.C.A.T - Automatic Contract AI Tool
 
-A.C.A.T is a lightweight hackathon MVP for freelancers and small businesses. It collects project details through a guided intake flow, then generates a contract draft, milestone plan, invoice, and receipt after payment is marked as paid.
+A.C.A.T (Automatic Contract AI Tool) is a web-based solution designed for freelancers and small businesses to simplify the creation of professional project documents.
+
+The system guides users through a structured, step-by-step input process to collect project details, then automatically generates well-organized contracts, invoices, and receipts.
+
+It focuses on delivering a smooth user experience, reliable functionality, and clear, professional document formatting, helping users save time and reduce manual work when managing client agreements and financial documents.
 
 ## What Works
 
